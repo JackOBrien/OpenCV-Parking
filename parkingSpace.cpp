@@ -55,7 +55,7 @@ class parkingSpace {
     bool isSpaceAvailable ();
     
     
-    // -- Accessor -- //
+    // -- Accessors -- //
     
     /* Gets the extracted image of the parking space.           */
     cv::Mat getBaseFrame ();
@@ -145,13 +145,13 @@ void parkingSpace::processFrame (cv::Mat frame) {
     
     // --- Local Variables ---------------------- //
     
-    /* todo */
+    /* Used in the the computation of the threshold. (upper to lower)*/
     int ratio = 3;
     
-    /* todo */
+    /* The threshold to uphold the edge detection to. */
     int lowThreshold = 88;
     
-    /* todo */
+    /* The size of soble kernel used in canny algorithim. */
     int kernel_size = 3;
     
     // --- Core Routine ------------------------- //
