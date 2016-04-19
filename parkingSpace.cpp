@@ -12,7 +12,7 @@
 // =================================================================== //
 // A. Includes														   //
 // =================================================================== //
-#include "parkingSpace.hpp"
+// #include "parkingSpace.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include <stdlib.h>
@@ -99,11 +99,16 @@ class parkingSpace {
     /* Whether or not an object has been detected in the spot.  */
     bool object_detected = false;
     
-    /* The amount of time in milliseconds the car has to park.  */
-    int parked_car_time = 30000;
+    /* The amount of time in seconds the car has to park.  */
+    int parked_car_time = 5;
+
+    /* The number of frames per second of the video             */
+    double fps = 30;
     
-    /* The timer class used to monitor the parking time.        */
-    //clock
+    /* The numeber of frames the spot has been taken            */
+    int num_taken_frames = 0;
+
+    bool currently_available = false;
     
     /* The rectangle area used to select space of intrest.      */
     cv::Rect interest_region;
@@ -183,10 +188,38 @@ void parkingSpace::processFrame (cv::Mat frame) {
 
 
 bool parkingSpace::isSpaceAvailable() {
-    
-    // todo
-    return object_detected;
-    
+
+    if (object_detected) {
+        num_taken_frames ++;
+    } else {
+        num_taken_frames --;
+    }
+
+    double taken_seconds = num_taken_frames / fps;
+
+    if (taken_seconds >= parked_car_time) {
+        num_taken_frames = parked_car_time * fps;
+        taken_seconds = parked_car_time;
+    } else if (num_taken_frames < 0) {
+        num_taken_frames = 0;
+        taken_seconds = 0;
+    }
+
+    if (currently_available) {
+        if (taken_seconds >= parked_car_time/2) {
+            return true;
+        } else {
+            currently_available = false;
+            return false;
+        }
+    } else {
+        if (taken_seconds >= parked_car_time/2) {
+            currently_available = true;
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
 
 
