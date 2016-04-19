@@ -12,14 +12,11 @@
 // =================================================================== //
 // A. Includes														   //
 // =================================================================== //
-// #include "parkingSpace.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-#include <ctime>
-
 
 
 // =================================================================== //
@@ -28,7 +25,7 @@
 
 class parkingSpace {
     
-    public:
+public:
     
     // == Public Vars ========================================= //
     
@@ -83,7 +80,7 @@ class parkingSpace {
     /* Sets the name of the spot to something.                  */
     void setName (cv::String name);
     
-    private:
+private:
     
     // == Private Vars ======================================== //
     
@@ -101,13 +98,13 @@ class parkingSpace {
     
     /* The amount of time in seconds the car has to park.  */
     int parked_car_time = 5;
-
+    
     /* The number of frames per second of the video             */
-    double fps = 30;
+    double fps = 15;
     
     /* The numeber of frames the spot has been taken            */
     int num_taken_frames = 0;
-
+    
     bool currently_available = false;
     
     /* The rectangle area used to select space of intrest.      */
@@ -115,7 +112,7 @@ class parkingSpace {
     
     /* The striped image region we have cropped out.            */
     cv::Mat base_frame;
-
+    
     /* The stripped image region with a grayscale filter.       */
     cv::Mat base_gs_frame;
     
@@ -126,15 +123,9 @@ class parkingSpace {
     std::vector<std::vector<cv::Point> > frame_contours;
     
     /* Information regarding each contour.                     */
-     std::vector<cv::Vec4i> frame_hierarchy;
+    std::vector<cv::Vec4i> frame_hierarchy;
     
     // == Private Methods ===================================== //
-    
-    /* determines if the car has been parked long enough.       */
-    bool checkTimer ();
-    
-    /* Resets the timer when a parking space becomes available. */
-    void resetTimer ();
     
     /* Strips out the parking space from the base image.        */
     void stripImage (cv::Mat parking_frame);
@@ -170,17 +161,17 @@ void parkingSpace::processFrame (cv::Mat frame) {
     
     
     // 3. Preform edge detection for the space.
-
-        // i.) pre-process the image by reducing the image noise.
+    
+    // i.) pre-process the image by reducing the image noise.
     blur( base_gs_frame, edges_frame, cv::Size(3,3) );
     
-        // ii.) Preform canny edge detection on the image.
+    // ii.) Preform canny edge detection on the image.
     Canny(edges_frame, edges_frame, lowThreshold, lowThreshold * ratio, kernel_size);
-
-        // iii.) Find the contours in the image and store them.
+    
+    // iii.) Find the contours in the image and store them.
     findContours(edges_frame, frame_contours, frame_hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
     
-
+    
     // 4. Set the car parked variable to the state of the space.
     object_detected =frame_contours.size() >= contour_threshold_count ? true : false;
     
@@ -188,15 +179,15 @@ void parkingSpace::processFrame (cv::Mat frame) {
 
 
 bool parkingSpace::isSpaceAvailable() {
-
+    
     if (object_detected) {
         num_taken_frames ++;
     } else {
         num_taken_frames --;
     }
-
+    
     double taken_seconds = num_taken_frames / fps;
-
+    
     if (taken_seconds >= parked_car_time) {
         num_taken_frames = parked_car_time * fps;
         taken_seconds = parked_car_time;
@@ -204,20 +195,20 @@ bool parkingSpace::isSpaceAvailable() {
         num_taken_frames = 0;
         taken_seconds = 0;
     }
-
+    
     if (currently_available) {
         if (taken_seconds >= parked_car_time/2) {
-            return true;
+            return false;
         } else {
             currently_available = false;
-            return false;
+            return true;
         }
     } else {
         if (taken_seconds >= parked_car_time/2) {
             currently_available = true;
-            return true;
-        } else {
             return false;
+        } else {
+            return true;
         }
     }
 }
@@ -250,7 +241,7 @@ cv::Mat parkingSpace::getGrayscaleFrame() {
     
 }
 
- 
+
 cv::Mat parkingSpace::getContourMapFrame() {
     
     // --- Local Variables ---------------------- //
@@ -274,12 +265,12 @@ cv::Mat parkingSpace::getContourMapFrame() {
     {
         contour_color = cv::Scalar(rng.uniform(0, 255), rng.uniform(0,255), rng.uniform(0,255));
         drawContours( contour_drawing, frame_contours, i, contour_color, 2,
-                                        8, frame_hierarchy, 0, cv::Point() );
+                     8, frame_hierarchy, 0, cv::Point() );
     }
     
     // 3. Return the result image.
     return contour_drawing;
-
+    
 }
 
 
@@ -308,18 +299,6 @@ void parkingSpace::setName(cv::String name) {
 // =================================================================== //
 // E. Helper Method Definitions                                        //
 // =================================================================== //
-
-bool parkingSpace::checkTimer() {
-    return false;
-    // todo
-}
-
-
-
-void parkingSpace::resetTimer() {
-    // todo
-}
-
 
 
 void parkingSpace::stripImage(cv::Mat parking_frame) {
