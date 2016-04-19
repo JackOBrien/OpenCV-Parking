@@ -13,6 +13,11 @@
 // =================================================================== //
 // A. Includes														   //
 // =================================================================== //
+
+/* NOTE: Change this to path of video we want to process. */
+#define VIDEO_PATH "/Users/jacob/Desktop/DroneVideo.mp4"
+
+
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include <stdlib.h>
@@ -84,7 +89,7 @@ int main( int argc, char** argv )
     parkingSpace contour_map = *new parkingSpace();
     
     /* The video stream that is going to be monitored.    */
-    VideoCapture cctv_stream("/Users/jacob/Desktop/d.mp4");
+    VideoCapture cctv_stream(VIDEO_PATH);
     
     /* The frame pulled from the video stream to process. */
     Mat video_frame;
